@@ -1,4 +1,5 @@
 package ca.gbc.productservice.model;
+import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
+@Builder
 public class Product {
 
     @Id
