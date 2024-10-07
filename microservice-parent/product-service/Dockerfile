@@ -19,7 +19,7 @@ FROM openjdk:23-jdk
 RUN mkdir /app
 COPY --from=builder /home/gradle/src/build/libs/*.jar /app/product-service.jar
 
-ENV MONGO_DB_USERNAME = admin \
+ENV MONGO_DB_USERNAME = admin
     MONGO_DB_PWD=password
 
 EXPOSE 8084

@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  product-service:
+    image: product-service
+    ports:
+      - "8084:8084"
+    build:
+      context: ./product-service #the directory where the  docker file reside
+      dockerfile: ./Dockerfile #specify the dockerfile for use to build image
+    container_name: product-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mongodb
+    networks:
+      - spring
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME = admin
+      - MONGO_INITDB_ROOT_PASSWORD = password
+    volumes:
+      - ./data/mongo/products:/data/db
+      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:ro
+    command: mongod - auth
+    networks:
+      - spring
