@@ -1,5 +1,6 @@
 package ca.gbc.productservice.service;
 
+
 import ca.gbc.productservice.dto.ProductRequest;
 import ca.gbc.productservice.dto.ProductResponse;
 import ca.gbc.productservice.model.Product;
@@ -16,53 +17,49 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl implements ProductService{
 
-    private final MongoTemplate mongoTemplate;
     private final ProductRepository productRepository;
+    private final MongoTemplate mongoTemplate;
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
-        log.debug("Creating a new product {}", productRequest.name());
+
+        log.debug("Creating a new product {}",productRequest.name());
+
         Product product = Product.builder()
                 .name(productRequest.name())
                 .description(productRequest.description())
-                .price(productRequest.price())
-                .build();
+                .price(productRequest.price()).build();
 
-        //persist a product
         productRepository.save(product);
+        log.info("Product {} is saved",product.getId());
 
-        log.info("Product {} is saved", product.getId());
-
-        return new ProductResponse(product.getId()
-                , product.getName()
-                , product.getDescription()
-                , product.getPrice());
+        return new ProductResponse(product.getId(),product.getName(),product
+                .getDescription(),product.getPrice());
+    }
+    private ProductResponse mapToProductResponse(Product product){
+        return new ProductResponse(product.getId(),product.getName(),
+                product.getDescription(),product.getPrice());
     }
 
     @Override
     public List<ProductResponse> getAllProducts() {
-        log.debug("Returning a list products");
 
-        List<Product> products=productRepository.findAll();
+        log.debug("Returning a List of products");
+        List<Product> products = productRepository.findAll();
 
-        return products.stream().map(this::mapToProductResponse).toList();
+        return products.stream().map(product->mapToProductResponse(product)).toList();
+
     }
 
-    private ProductResponse mapToProductResponse(Product product){
-        return new ProductResponse(product.getId()
-                , product.getName()
-                , product.getDescription()
-                , product.getPrice());
-    }
     @Override
     public String updateProduct(String id, ProductRequest productRequest) {
-        log.debug("Updating a product with id {}", id);
-        Query query= new Query();
-        query.addCriteria(Criteria.where("id").is(id));
-        Product product=mongoTemplate.findOne(query, Product.class);
+        log.debug("Updating product with id {}",id);
 
-        if (product!=null){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        Product product = mongoTemplate.findOne(query,Product.class);
+        if(product != null){
             product.setDescription(productRequest.description());
             product.setPrice(productRequest.price());
             product.setName(productRequest.name());
@@ -73,7 +70,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(String id) {
-        log.debug("Delete a product with id {}", id);
+        log.debug("Deleting a product with id {}",id);
+
         productRepository.deleteById(id);
     }
 }
