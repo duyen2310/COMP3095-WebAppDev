@@ -32,7 +32,8 @@ services:
     container_name: mongodb-manual
     environment:
       - MONGO_INIT_ROOT_USERNAME=admin
-      - MONGO_INIT_ROOT_PASSWORD=password
+      - MONGO_INIT_ROOT_PASSWORD=password      - MONGO_INIT_ROOT_PASSWORD=password
+      - MONGO_INIT_ROOT_SERVER=mongodb
     volumes:
       - ./data/mongo/products:/data/db
       - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
