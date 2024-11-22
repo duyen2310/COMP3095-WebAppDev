@@ -2,13 +2,13 @@ package ca.gbc.orderservice.service;
 
 import ca.gbc.orderservice.client.InventoryClient;
 import ca.gbc.orderservice.dto.OrderRequest;
+import ca.gbc.orderservice.dto.OrderResponse;
 import ca.gbc.orderservice.model.Order;
 import ca.gbc.orderservice.repository.OrderRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -16,21 +16,18 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@EnableFeignClients(basePackages = "ca.gbc.orderservice.client")
-
-public class OrderServiceImpl implements OrderService{
+public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
 
     private final InventoryClient inventoryClient;
 
-
     @Override
-    public void placeOrder(OrderRequest orderRequest){
-        //CHECK INVENTORY
+    public OrderResponse placeOrder(OrderRequest orderRequest) {
+
+        // check the inventory
         var isProductInStock = inventoryClient.isInStock(orderRequest.skuCode(), orderRequest.quantity());
 
-
-        if(isProductInStock) {
+        if (isProductInStock) {
             Order order = Order.builder()
                     .orderNumber(UUID.randomUUID().toString())
                     .price(orderRequest.price())
@@ -39,9 +36,11 @@ public class OrderServiceImpl implements OrderService{
                     .build();
 
             orderRepository.save(order);
+            log.debug("Created order");
+
+        }else{
+            throw new RuntimeException("Product with skuCode " + orderRequest.skuCode() + "is not in stock");
         }
-        else {
-            throw new RuntimeException("Product with skuCode "+orderRequest.skuCode()+"is not in stock.");
-        }
+        return null;
     }
 }

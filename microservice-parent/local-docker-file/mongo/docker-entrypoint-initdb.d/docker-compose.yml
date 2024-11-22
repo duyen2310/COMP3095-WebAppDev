@@ -1,65 +1,32 @@
-# ----------------------------------------------------------------------------------------------------------------
-# create networks
-# -p give me a folder, up brings up all the containers
-# 1. docker-compose -p comp3095-microservices-ecommerce -f docker-compose-single.yml up -d
-#     -- This command will start the containers in detached made without rebuilding the images (if they exist)
-#
-# 2. docker-compose -p comp3095-microservices-ecommerce -f docker-compose-single.yml up -d --build
-#     -- This command force the rebuild of all images, even if already exist, before starting the containers
-# ----------------------------------------------------------------------------------------------------------------
+#For focker to read nad execute the mongo-init.js filem the database must not already exist.
+#That is, the mongo-init.js file is only exexuted the one time, on newwly initialized databases
 
-version: "3.9"
-
+version: '4.0'
 services:
-
-  product-service:
-    image: product-service
-    ports:
-      - "8084:8084"
-    build:
-      context: ./product-service
-      dockerfile: ./Dockerfile
-    container_name: product-service-manual
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    depends_on:
-      - mongodb
-    networks:
-      - spring
-
   mongodb:
-    image: mongo
-    container_name: mongodb-manual
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    #restart always
     environment:
-      - MONGO_INIT_ROOT_USERNAME=admin
-      - MONGO_INIT_ROOT_PASSWORD=password      - MONGO_INIT_ROOT_PASSWORD=password
-      - MONGO_INIT_ROOT_SERVER=mongodb
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
     volumes:
-      - ./data/mongo/products:/data/db
-      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    #    restart: unless-stopped
-    #    command: mongod --auth
-    networks:
-      - spring
+      - ./docker-entrypoint-initdb.d/mongo-init.js/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./db-data:/data/db
+    container_name: local-mongo
 
   mongo-express:
     image: mongo-express
-    container_name: mongo-express-manual
+    #restart always fixes mongo network error when mongodb is not ready when mongo-express starts
     ports:
       - "8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
-      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - MF_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - MF_CONFIG_MONGODB_ADMINPASSWORD=password
+      - MF_CONFIG_MONGODB_SERVER=mongodb
+    container_name: local-mongoexpress
     depends_on:
       - mongodb
-    networks:
-      - spring
 
-volumes:
-  mongodb:
-    driver: local # use local driver for persisting data on the host machine
-
-networks:
-  spring:
-    driver: bridge # bridge network allows isolated communication between containers
+#volumes
