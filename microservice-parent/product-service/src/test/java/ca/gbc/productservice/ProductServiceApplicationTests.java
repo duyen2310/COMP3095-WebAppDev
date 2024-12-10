@@ -93,4 +93,97 @@ class ProductServiceApplicationTests {
 
     }
 
+    @Test
+    void updateProductTest() {
+        String createRequestBody = """
+            {
+                "name": "Old TV",
+                "description": "Old TV - Model 2023",
+                "price": "1500"
+            }
+            """;
+
+        String productId = RestAssured.given()
+                .contentType("application/json")
+                .body(createRequestBody)
+                .when()
+                .post("/api/product")
+                .then()
+                .log().all()
+                .statusCode(201)
+                .body("id", Matchers.notNullValue())
+                .extract()
+                .path("id");
+
+        String updateRequestBody = """
+            {
+                "name": "Updated TV",
+                "description": "Updated TV - Model 2024",
+                "price": "2000"
+            }
+            """;
+
+        RestAssured.given()
+                .contentType("application/json")
+                .body(updateRequestBody)
+                .when()
+                .put("/api/product/" + productId)
+                .then()
+                .log().all()
+                .statusCode(204);
+
+        RestAssured.given()
+                .contentType("application/json")
+                .when()
+                .get("/api/product")
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("size()", Matchers.greaterThan(0))
+                .body("[0].name", Matchers.equalTo("Updated TV"))
+                .body("[0].description", Matchers.equalTo("Updated TV - Model 2024"))
+                .body("[0].price", Matchers.equalTo(2000));
+    }
+
+    @Test
+    void deleteProductTest() {
+        String createRequestBody = """
+            {
+                "name": "Temporary TV",
+                "description": "Temporary TV - Model 2023",
+                "price": "1200"
+            }
+            """;
+
+        String productId = RestAssured.given()
+                .contentType("application/json")
+                .body(createRequestBody)
+                .when()
+                .post("/api/product")
+                .then()
+                .log().all()
+                .statusCode(201)
+                .body("id", Matchers.notNullValue())
+                .extract()
+                .path("id");
+
+        RestAssured.given()
+                .contentType("application/json")
+                .when()
+                .delete("/api/product/" + productId)
+                .then()
+                .log().all()
+                .statusCode(204);
+
+        RestAssured.given()
+                .contentType("application/json")
+                .when()
+                .get("/api/product")
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("find { it.id == '" + productId + "' }", Matchers.nullValue());
+    }
+
+
 }

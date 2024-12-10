@@ -4,7 +4,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.6"
 }
 
-group = "ca.gbc"
+group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -23,14 +23,18 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement{
+	imports{
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
+	}
+}
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
-	// Week 10 added two new dependencies
-//	implementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 	testImplementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.6.0")
 	compileOnly("org.projectlombok:lombok")
