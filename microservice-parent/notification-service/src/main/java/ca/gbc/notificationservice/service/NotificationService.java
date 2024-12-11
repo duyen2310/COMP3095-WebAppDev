@@ -26,7 +26,7 @@ public class NotificationService {
         // Send email to customer
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
-            mimeMessageHelper.setFrom("aumzaveri06@gmail.com");
+            mimeMessageHelper.setFrom("truongthuykyduyen@gmail.com");
             mimeMessageHelper.setTo(orderPlacedEvent.getEmail());
             mimeMessageHelper.setSubject(String.format("Your Order (%s) was palced successfully", orderPlacedEvent.getOrderNumber()));
             mimeMessageHelper.setText(String.format("""
@@ -35,7 +35,6 @@ public class NotificationService {
                     Your order with order number %s was successfully placed
                     
                     Thank you for your business
-                    COMP3095 Staff
                     """, orderPlacedEvent.getOrderNumber()));
         };
         try{
